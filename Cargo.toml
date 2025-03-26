@@ -1,0 +1,12 @@
+[package]
+name = "somcli"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+chrono = "0.4.40"
+directories = "6.0.0"
+icalendar = "0.16.13"
+reqwest = "0.12.15"
+tokio = {version = "1.44.1", features = ["full"]}
+
