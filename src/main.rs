@@ -1,23 +1,22 @@
 mod calendar_parser;
-mod fetch;
 
+use calendar_parser::{UpdateCache, Lessons};
 use chrono::{Datelike, Local, Timelike, Utc};
 const URL: &str = "https://api.somtoday.nl/rest/v1/icalendar/stream/d1b640b7-b7da-4aee-a10f-e259a49fcdc5/f7556f69-391b-4aca-adf1-a3e62064711c";
 
 #[tokio::main]
 async fn main() -> Result<(), u8> {
-    let (ics_data, ics_old) = fetch::fetch_calendar(URL).await.map_err(|e| {
+    let (lessons, update_cache) = Lessons::from_url(URL.to_string()).await.map_err(|e| {
         println!("{}", e);
         return 1
 
-    })?;
-    let lessons = calendar_parser::Lessons::from_string(ics_data).map_err(|e| {
-        println!("{}", e);
-        return 1
     })?;
 
     {
-        let offline = if ics_old {'💾'} else {'🌐'};
+        let offline = match update_cache {
+            UpdateCache::New => '🌐',
+            _ => '💾' 
+        };
         let local_date = lessons.date.with_timezone(&Local);
         let formatted_date = format!("{}:{} - {}.{}.{}", local_date.hour(), local_date.minute(), local_date.day(), local_date.month(), local_date.year());
         println!("---- {} {} ----", offline, formatted_date);
